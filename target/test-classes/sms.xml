@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <sub-flow name="handleSMS">
+        <dw:transform-message doc:name="Prepare SMS body">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	To: payload.recipient,
+	From: p('twilio.phone.number'),
+	Body: payload.message
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="Message to be sent: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: Message to be sent"/>
+        <http:request config-ref="HTTPS_Twilio_Request_Configuration" path="/${twilio.account.sid}/Messages.json" method="POST" doc:name="HTTPS: Request To Twilio API"/>
+        <logger message="Twillio Response: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: Twillio Response"/>
+        <dw:transform-message doc:name="Format Response" metadata:id="f12ddc4d-ec52-40b5-b262-ce41ed912e87">
+            <dw:input-payload mimeType="application/json"/>
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json skipNullOn="objects"
+---
+{
+	meta: {
+		success: true when payload.error_code == null otherwise false,
+		error: payload.error_code,
+		message: payload.error_message
+	},
+	data: {
+		sid: payload.sid,
+		date_created: payload.date_created,
+		date_updated: payload.date_updated,
+		from: payload.from,
+		messaging_service_sid: payload.messaging_service_sid,
+		body: payload.body,
+		status: payload.status,
+		price: payload.price,
+		price_unit: payload.price_unit
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </sub-flow>
+</mule>

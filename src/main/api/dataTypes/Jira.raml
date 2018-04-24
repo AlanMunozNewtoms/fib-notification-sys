@@ -1,0 +1,14 @@
+#%RAML 1.0 DataType
+
+#This file is located at dataTypes/Jira.raml
+
+type: object
+properties:
+  issueType: string | integer
+  summary: string | integer
+  projectKey: string | integer
+  issuePriority:
+    type: string
+    enum: ["1", "2", "3", "4", "5"]
+    required: true
+  description: string | integer

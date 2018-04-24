@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:jirarest="http://www.mulesoft.org/schema/mule/jirarest" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule/jirarest/current/mule-jirarest.xsd">
+    <sub-flow name="handleJira">
+        <dw:transform-message doc:name="Map Jira Request">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	fields: {
+		issuetype: {
+			name: payload.issueType
+		},
+		project: {
+			key: payload.projectKey
+		},
+		priority: {
+			id: payload.issuePriority
+		},
+		description: payload.description,
+		summary: payload.summary
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="Request to JIRA: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: JIRA Request"/>
+        <jirarest:issues-create config-ref="Jira_Rest__Basic_Authentication" doc:name="Jira Rest"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="e9f2a716-9982-45f3-b324-737cf18b03a2">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	meta: {
+		success: true
+	},
+	data: {
+		jiraId: payload.id,
+		issueKey: payload.key
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="JIRA Response: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: JIRA Response"/>
+    </sub-flow>
+</mule>

@@ -1,0 +1,49 @@
+#%RAML 1.0
+title: System API
+version: v1.0
+baseUri: http://localhost:8081/api      
+types:
+  email: !include dataTypes/Email.raml
+  sms:  !include datatypes/Sms.raml
+  jira: !include dataTypes/Jira.raml
+
+/email:
+  description: A notification of type Email
+  post:
+    description: Send a new notification via Email
+    body:
+      application/json:
+        type: email
+        example: !include examples/email-request.json
+    responses:
+      200:
+        body: 
+          application/json:
+            example: !include examples/generic-response.json
+            
+/sms:
+  description: A notification of type sms
+  post:
+    description: Send a new notification via Email
+    body:
+      application/json:
+        type: sms
+        example: !include examples/sms-request.json
+    responses:
+      200:
+        body: 
+          application/json:
+            example: !include examples/generic-response.json
+/jira:
+  description: A notification of type Jira (Issue)
+  post:
+    description: Send a new notification via Email
+    body:
+      application/json:
+        type: jira
+        example: !include examples/jira-request.json
+    responses:
+      200:
+        body: 
+          application/json:
+            example: !include examples/generic-response.json

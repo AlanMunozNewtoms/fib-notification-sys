@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+<sub-flow name="handleEMAIL">
+        <dw:transform-message doc:name="Prepare EMAIL body">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+(("Priority:" ++ flowVars.inputData.priority ++ "\n") when (flowVars.inputData.priority?) otherwise "")
+++ ("Message:" ++ flowVars.inputData.message when (flowVars.inputData.message?) otherwise "")]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="SMTP Request: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: SMTP Request"/>
+        <smtp:outbound-endpoint host="${smtp.host}" port="587" user="fib.test.mb@gmail.com" password="te$t-modusbox" connector-ref="Gmail" to="#[flowVars.inputData.recipient]" from="${smtp.user}" subject="#[flowVars.inputData.subject]" responseTimeout="10000" doc:name="Send EMAIL by SMTP"/>
+        <logger message="SMTP Response: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: SMTP Response"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="bdde4502-fdc5-4563-87cc-9f09197dd5e4">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	meta: {
+		success: true,
+		message: "Email has been sent"
+	}
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </sub-flow>
+
+</mule>

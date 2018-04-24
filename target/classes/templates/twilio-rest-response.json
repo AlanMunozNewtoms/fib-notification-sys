@@ -1,0 +1,24 @@
+{  
+   "sid":"SM128f220edb154397b2d7537432515b03",
+   "date_created":"Tue, 24 Apr 2018 14:11:06 +0000",
+   "date_updated":"Tue, 24 Apr 2018 14:11:06 +0000",
+   "date_sent":null,
+   "account_sid":"AC59d1200f121f230071f9fe5d6ec0f01a",
+   "to":"+525561249571",
+   "from":"+18502795434",
+   "messaging_service_sid":null,
+   "body":"Sent from your Twilio trial account - This is a message",
+   "status":"queued",
+   "num_segments":"1",
+   "num_media":"0",
+   "direction":"outbound-api",
+   "api_version":"2010-04-01",
+   "price":null,
+   "price_unit":"USD",
+   "error_code":null,
+   "error_message":null,
+   "uri":"/2010-04-01/Accounts/AC59d1200f121f230071f9fe5d6ec0f01a/Messages/SM128f220edb154397b2d7537432515b03.json",
+   "subresource_uris":{  
+      "media":"/2010-04-01/Accounts/AC59d1200f121f230071f9fe5d6ec0f01a/Messages/SM128f220edb154397b2d7537432515b03/Media.json"
+   }
+}

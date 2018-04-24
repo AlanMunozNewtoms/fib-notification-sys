@@ -1,0 +1,16 @@
+{
+    "inputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "twilio-rest-response"
+        }
+    },
+    "outputMessageMetadata": {
+        "messagePayload": {
+            "connectorName": "#_custom_mule_metadata_type_#",
+            "typeId": "generic-response"
+        }
+    },
+    "id": "f12ddc4d-ec52-40b5-b262-ce41ed912e87",
+    "version": "5.2.0.0"
+}
