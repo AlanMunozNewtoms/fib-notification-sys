@@ -24,7 +24,7 @@ types:
 /sms:
   description: A notification of type sms
   post:
-    description: Send a new notification via Email
+    description: Send a new notification via Sms
     body:
       application/json:
         type: sms
@@ -37,7 +37,7 @@ types:
 /jira:
   description: A notification of type Jira (Issue)
   post:
-    description: Send a new notification via Email
+    description: Send a new notification via Jira
     body:
       application/json:
         type: jira
