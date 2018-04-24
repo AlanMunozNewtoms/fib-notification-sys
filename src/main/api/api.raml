@@ -47,3 +47,21 @@ types:
         body: 
           application/json:
             example: !include examples/generic-response.json
+  /{id}: 
+    patch:
+      description: Assign someone to an Issue
+      body:
+        application/json:
+          example: !include examples/jira-add-assignee.json
+      responses:
+        200:
+          body: 
+            application/json:
+              example: !include examples/generic-response.json
+    get:
+      description: Retrieve specific Issue information 
+      responses:
+        200:
+          body: 
+            application/json:
+              example: !include examples/generic-response.json

@@ -7,7 +7,30 @@
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule/jirarest/current/mule-jirarest.xsd">
-    <sub-flow name="handleJira">
+    <sub-flow name="add-assignee">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	name: payload.assignee
+}]]></dw:set-payload>
+        </dw:transform-message>
+        <logger level="INFO" doc:name="Logger: Request to JIRA" message="Request to JIRA: #[message.payloadAs(java.lang.String)]"/>
+        <jirarest:issues-set-assignee config-ref="Jira_Rest__Basic_Authentication" issueKeyOrId="#[flowVars.id]" doc:name="Jira Rest - Set on Issue"/>
+
+        <logger level="INFO" doc:name="Logger: JIRA Response" message="JIRA Response: #[message.payloadAs(java.lang.String)]"/>
+        <dw:transform-message doc:name="Map Response">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	Success: true,
+	assignee: payload.name
+}]]></dw:set-payload>
+        </dw:transform-message>
+    </sub-flow>
+    <sub-flow name="create-issue">
         <dw:transform-message doc:name="Map Jira Request">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
@@ -29,7 +52,9 @@ http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule
 }]]></dw:set-payload>
         </dw:transform-message>
         <logger message="Request to JIRA: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: JIRA Request"/>
-        <jirarest:issues-create config-ref="Jira_Rest__Basic_Authentication" doc:name="Jira Rest"/>
+        <jirarest:issues-create config-ref="Jira_Rest__Basic_Authentication" doc:name="Jira Rest - Create"/>
+
+        <logger message="JIRA Response: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: JIRA Response"/>
         <dw:transform-message doc:name="Transform Message" metadata:id="e9f2a716-9982-45f3-b324-737cf18b03a2">
             <dw:set-payload><![CDATA[%dw 1.0
 %output application/json
@@ -44,6 +69,16 @@ http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule
 	}
 }]]></dw:set-payload>
         </dw:transform-message>
-        <logger message="JIRA Response: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: JIRA Response"/>
+    </sub-flow>
+    <sub-flow name="get-issue">
+        <dw:transform-message doc:name="Map Jira Request">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+flowVars.id]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="Request to JIRA: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: Request to JIRA"/>
+        <jirarest:issues-get config-ref="Jira_Rest__Basic_Authentication" issueKeyOrId="#[flowVars.id]" doc:name="Jira Rest - Get"/>
+        <logger message="Response JIRA: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: Jira Response"/>
     </sub-flow>
 </mule>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:jirarest="http://www.mulesoft.org/schema/mule/jirarest" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jirarest="http://www.mulesoft.org/schema/mule/jirarest" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
@@ -8,16 +7,15 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule/jirarest/current/mule-jirarest.xsd">
-    <jirarest:basic-config name="Jira_Rest__Basic_Authentication" username="alan.munoz@newtoms.com" password="alan21nala290" serverUrl="https://newtoms.atlassian.net" doc:name="Jira Rest: Basic Authentication"/>
-    
+    <jirarest:basic-config name="Jira_Rest__Basic_Authentication" username="alan.munoz@newtoms.com" password="alan21nala290" serverUrl="https://newtoms.atlassian.net" doc:name="Jira Rest: Basic Authentication" />
     <flow name="api-main">
-        <http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP"/>
-        <apikit:router config-ref="api-config" doc:name="APIkit Router"/>
-        <exception-strategy ref="apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+        <http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP" />
+        <apikit:router config-ref="api-config" doc:name="APIkit Router" />
+        <exception-strategy ref="apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy" />
     </flow>
     <flow name="api-console">
-        <http:listener config-ref="api-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
-        <apikit:console config-ref="api-config" doc:name="APIkit Console"/>
+        <http:listener config-ref="api-httpListenerConfig" path="/console/*" doc:name="HTTP" />
+        <apikit:console config-ref="api-config" doc:name="APIkit Console" />
     </flow>
     <flow name="post:/email:application/json:api-config">
         <dw:transform-message doc:name="Payload transform to Object - flowVar inputData definition">
@@ -35,10 +33,8 @@ payload]]></dw:set-payload>
 	priority: payload.priority
 }]]></dw:set-variable>
         </dw:transform-message>
-        <validation:is-email config-ref="Validation_Configuration" doc:name="Validation" email="#[payload.recipient]" message="Recipient doesn't contain valid email adress.">
-
-                </validation:is-email>
-        <flow-ref name="handleEMAIL" doc:name="handleEMAIL"/>
+        <validation:is-email config-ref="Validation_Configuration" doc:name="Validation" email="#[payload.recipient]" message="Recipient doesn't contain valid email adress." />
+        <flow-ref name="handleEMAIL" doc:name="handleEMAIL" />
     </flow>
     <flow name="post:/sms:application/json:api-config">
         <dw:transform-message doc:name="Payload transform to Object - flowVar inputData definition">
@@ -56,10 +52,10 @@ payload]]></dw:set-payload>
         </dw:transform-message>
         <validation:all config-ref="Validation_Configuration" doc:name="Validation">
             <validation:validations>
-                <validation:matches-regex value="#[flowVars.inputData.to]" regex="^\+?\d{1,}$" message="Recipient doesn't contain valid phone number."/>
+                <validation:matches-regex value="#[flowVars.inputData.to]" regex="^\+?\d{1,}$" message="Recipient doesn't contain valid phone number." />
             </validation:validations>
         </validation:all>
-        <flow-ref name="handleSMS" doc:name="handleSMS"/>
+        <flow-ref name="handleSMS" doc:name="handleSMS" />
     </flow>
     <flow name="post:/jira:application/json:api-config">
         <dw:transform-message doc:name="Payload transform to Object">
@@ -77,9 +73,20 @@ payload]]></dw:set-payload>
 	priority: payload.priority
 }]]></dw:set-variable>
         </dw:transform-message>
-        <flow-ref name="handleJira" doc:name="handleJira"/>
+        <flow-ref name="create-issue" doc:name="create-issue" />
+    </flow>
+    <flow name="patch:/jira/{id}:api-config">
+		 <dw:transform-message doc:name="Payload transform to Object">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload]]></dw:set-payload>
+
+        </dw:transform-message>
+        <flow-ref name="add-assignee" doc:name="add-assignee"/>
+    </flow>
+    <flow name="get:/jira/{id}:api-config">
+        <flow-ref name="get-issue" doc:name="get-issue"/>
 
     </flow>
-
-    
 </mule>
