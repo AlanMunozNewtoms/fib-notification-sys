@@ -7,7 +7,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule/jirarest/current/mule-jirarest.xsd">
-    <jirarest:basic-config name="Jira_Rest__Basic_Authentication" username="alan.munoz@newtoms.com" password="alan21nala290" serverUrl="https://newtoms.atlassian.net" doc:name="Jira Rest: Basic Authentication" />
+    <jirarest:basic-config name="Jira_Rest__Basic_Authentication" username="${jira.username}" password="${jira.password}" serverUrl="${jira.server}" doc:name="Jira Rest: Basic Authentication" />
     <flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP" />
         <apikit:router config-ref="api-config" doc:name="APIkit Router" />
@@ -89,4 +89,10 @@ payload]]></dw:set-payload>
         <flow-ref name="get-issue" doc:name="get-issue"/>
 
     </flow>
+     <flow name="get:/updatedIssues:api-config">
+        <set-variable variableName="issuetype" value="#[message.inboundProperties.'http.query.params'.issueType]" doc:name="Set Variable issueType"/>
+        <flow-ref name="get-updated-issues" doc:name="get-updated-issues"/>
+        
+    </flow>
+    
 </mule>

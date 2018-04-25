@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:jirarest="http://www.mulesoft.org/schema/mule/jirarest" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:jirarest="http://www.mulesoft.org/schema/mule/jirarest" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
 http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule/jirarest/current/mule-jirarest.xsd">
@@ -80,5 +84,20 @@ flowVars.id]]></dw:set-payload>
         <logger message="Request to JIRA: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: Request to JIRA"/>
         <jirarest:issues-get config-ref="Jira_Rest__Basic_Authentication" issueKeyOrId="#[flowVars.id]" doc:name="Jira Rest - Get"/>
         <logger message="Response JIRA: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger: Jira Response"/>
+    
     </sub-flow>
+    <sub-flow name="get-updated-issues">
+        <jirarest:search config-ref="Jira_Rest__Basic_Authentication" fields="key, issuetype, issuetype, updated, status" jql="assignee = alan.munoz and (issuetype = #[flowVars.issuetype]) and status changed  to &quot;In Progress&quot; after -#[message.inboundProperties.'http.query.params'.timeAgo]m" validateQuery="true" doc:name="Jira Rest: JQL Search"/>
+        <dw:transform-message doc:name="Transform Message" metadata:id="aa60df41-730f-4906-a230-3e47a083f89a">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/json  skipNullOn = "objects"
+---
+payload]]></dw:set-payload>
+        </dw:transform-message>
+        <logger message="Response JIRA: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+
+    </sub-flow>
+
+
+ 
 </mule>

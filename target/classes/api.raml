@@ -65,3 +65,25 @@ types:
           body: 
             application/json:
               example: !include examples/generic-response.json
+/updatedIssues:
+  description: Issues which status has been modified to "In Progress" In the last hour
+  get:
+    description: Gets the actual values of the address provided.
+    queryParameters:
+      userId:
+        description: Id of the user in Jira
+        type: string
+        required: true
+      timeAgo:
+        description: Amount of time ago (minutes) we expect to retrieve information from
+        type: integer
+        required: true
+      issueType:
+        description: Type of issue we expect to find (Bug, Task, etc)
+        type: string
+        required: true
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include examples/generic-response.json
