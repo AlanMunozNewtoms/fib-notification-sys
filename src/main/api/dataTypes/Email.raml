@@ -4,11 +4,10 @@
 
 type: object
 properties:
-  id?: string | integer
   message?: string | integer
   subject?: string | integer
   priority:
     type: string
-    enum: [ URGENT, CRITICAL, MAJOR, MINOR, TRIVIAL]
+    enum: [ Urgent, Critical, Major, Minor, Trivial]
     required: false
   recipient: string | integer

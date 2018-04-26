@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jirarest="http://www.mulesoft.org/schema/mule/jirarest" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jirarest="http://www.mulesoft.org/schema/mule/jirarest" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
-http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule/jirarest/current/mule-jirarest.xsd">
+http://www.mulesoft.org/schema/mule/jirarest http://www.mulesoft.org/schema/mule/jirarest/current/mule-jirarest.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
     <jirarest:basic-config name="Jira_Rest__Basic_Authentication" username="${jira.username}" password="${jira.password}" serverUrl="${jira.server}" doc:name="Jira Rest: Basic Authentication" />
     <flow name="api-main">
         <http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="HTTP" />
@@ -89,10 +90,18 @@ payload]]></dw:set-payload>
         <flow-ref name="get-issue" doc:name="get-issue"/>
 
     </flow>
-     <flow name="get:/updatedIssues:api-config">
+    <flow name="get:/jira:api-config">
         <set-variable variableName="issuetype" value="#[message.inboundProperties.'http.query.params'.issueType]" doc:name="Set Variable issueType"/>
-        <flow-ref name="get-updated-issues" doc:name="get-updated-issues"/>
-        
+        <choice doc:name="Choice">
+            <when expression="#[message.inboundProperties.'http.query.params'.status == &quot;updated&quot;]">
+                <logger message="Geting Recently Updated Isues" level="INFO" doc:name="Logger: Updated Isues"/>
+                <flow-ref name="get-updated-issues" doc:name="get-updated-issues"/>
+            </when>
+            <otherwise>
+                <logger message="Geting All isues" level="INFO" doc:name="Logger: All Isues"/>
+                <flow-ref name="get-all-issues" doc:name="get-all-issues"/>
+            </otherwise>
+        </choice>
+
     </flow>
-    
 </mule>
